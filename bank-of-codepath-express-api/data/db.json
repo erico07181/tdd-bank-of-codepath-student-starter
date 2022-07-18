@@ -39,10 +39,24 @@
     },
     {
       "id": 5,
-      "postedAt": "2022-05-12T18:56:21.755Z",
+      "postedAt": "2021-05-18T14:04:16.657Z",
       "amount": "100",
-      "description": "Something cool",
-      "category": "Income"
+      "description": "test transaction",
+      "category": "test"
+    },
+    {
+      "id": 6,
+      "postedAt": "2021-05-18T14:04:28.719Z",
+      "amount": "100000",
+      "description": "test transaction",
+      "category": "test"
+    },
+    {
+      "id": 7,
+      "postedAt": "2021-05-18T14:06:52.888Z",
+      "amount": "100",
+      "description": "test",
+      "category": "test"
     }
   ]
 }

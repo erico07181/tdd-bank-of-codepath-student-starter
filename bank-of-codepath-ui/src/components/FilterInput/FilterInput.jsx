@@ -7,9 +7,9 @@ export default function FilterInput({ inputValue, handleOnChange }) {
       <i className="material-icons">search</i>
       <input
         type="text"
-        placeholder="Search transactions"
         value={inputValue}
         onChange={handleOnChange}
+        placeholder="Search transactions"
       />
     </div>
   );

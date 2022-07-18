@@ -7,39 +7,46 @@ import TransactionDetail from "../TransactionDetail/TransactionDetail";
 import { useState } from "react";
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [transfers, setTransfers] = useState([]);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [filterInputValue, setFilterInputValue] = useState("");
   const [newTransactionForm, setNewTransactionForm] = useState({
     category: "",
     description: "",
     amount: 0,
   });
+
   const [isCreating, setIsCreating] = useState(false);
 
+  React.useEffect(() => {
+    console.log("app mounting..");
+  }, []);
+
   return (
-    <div className="app">
-      <BrowserRouter>
-        <Navbar
-          filterInputValue={filterInputValue}
-          setFilterInputValue={setFilterInputValue}
-        >
-          <div className="main">
+    <div className="App">
+      <nav className="app">
+        <BrowserRouter className="app">
+          <Navbar
+            filterInputValue={filterInputValue}
+            setFilterInputValue={setFilterInputValue}
+          />
+          ç
+          <main>
             <Routes>
               <Route
                 path="/"
                 element={
                   <Home
-                    isLoading={isLoading}
-                    setIsLoading={setIsLoading}
                     transactions={transactions}
                     setTransactions={setTransactions}
                     transfers={transfers}
                     setTransfers={setTransfers}
                     error={error}
                     setError={setError}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
                     filterInputValue={filterInputValue}
                     newTransactionForm={newTransactionForm}
                     setNewTransactionForm={setNewTransactionForm}
@@ -48,10 +55,14 @@ export default function App() {
                   />
                 }
               />
+              <Route
+                path="/transactions/:transactionId"
+                element={<TransactionDetail />}
+              />
             </Routes>
-          </div>
-        </Navbar>
-      </BrowserRouter>
+          </main>
+        </BrowserRouter>
+      </nav>
     </div>
   );
 }

@@ -1,9 +1,8 @@
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AddTransaction from "../AddTransaction/AddTransaction";
 import BankActivity from "../BankActivity/BankActivity";
 import "./Home.css";
-import { API_BASE_URL } from "../../constants";
 import axios from "axios";
 
 export default function Home({
@@ -17,75 +16,77 @@ export default function Home({
   setIsLoading,
   filterInputValue,
   newTransactionForm,
-  setNewTransacrionForm,
+  setNewTransactionForm,
   isCreating,
   setIsCreating,
 }) {
-  async function handleOnCreateTransaction() {
-    setIsCreating(true);
+  const filteredTransactions = transactions
+    ? transactions.filter((transaction) => {
+        return filterInputValue.length
+          ? transaction.description
+              .toLowerCase()
+              .includes(filterInputValue.toLowerCase())
+          : transactions;
+      })
+    : null;
 
-    try {
-      await axios
-        .post(`${API_BASE_URL}/bank/transactions`, {
-          transactions: { ...newTransactionForm },
-        })
-        .then((res) => {
-          setTransactions([...transactions, res.data.transactions]);
-        });
-    } catch (err) {
-      setError(err);
-      setIsCreating(false);
-    }
-  }
-
-  function filterTransactions(i) {
-    let res = [];
-    if (transactions == null) {
-      return;
-    }
-    transactions.forEach((item) => {
-      if (item.description.toLowerCase().includes(i.toLowerCase())) {
-        res = [...res, item];
-      }
-    });
-    return res;
-  }
-
-  function findError() {
-    if (error == null) {
-      return (
-        <BankActivity
-          transactions={
-            filterInputValue == ""
-              ? transactions
-              : filterTransactions(filterInputValue)
-          }
-        />
-      );
-    } else {
-      return <h2 className="error">Error</h2>;
-    }
-  }
-
-  React.useEffect(() => {
-    console.log(`${API_BASE_URL}/bank/transactions`);
+  useEffect(() => {
     setIsLoading(true);
-    axios
-      .get(`${API_BASE_URL}/bank/transactions`)
-      .then((res) => {
-        setTransactions(res.transactions);
-      })
-      .catch((err) => setError(1));
 
-    axios
-      .get(`${API_BASE_URL}/bank/transfers`)
-      .then((res) => {
-        setTransfers(res.transfers);
-      })
-      .catch((err) => setError(1));
+    const getTransactions = async () => {
+      let transactionURL = "http://localhost:3001/bank/transactions";
+      try {
+        let transactionResult = await axios.get(transactionURL);
+        console.log(transactionResult);
+        setTransactions(transactionResult.data.transactions);
+      } catch (e) {
+        console.log(e);
+        setError(e);
+      }
+    };
+
+    const getTransfers = async () => {
+      let transferURL = "http://localhost:3001/bank/transfers";
+      try {
+        let transferResult = await axios.get(transferURL);
+        setTransfers(transferResult.data.transfers);
+      } catch (e) {
+        console.log(e);
+        setError(e);
+      }
+    };
+
+    getTransactions();
+    getTransfers();
 
     setIsLoading(false);
+
+    console.log("home mounting...");
   }, []);
+
+  async function handleOnCreateTransaction() {
+    setIsCreating(true);
+    axios
+      .post("http://localhost:3001/bank/transactions", {
+        transaction: newTransactionForm,
+      })
+      .then((response) => {
+        console.log(response);
+        setTransactions((current) => [...current, response.data.transaction]);
+      })
+      .catch((err) => {
+        setError(err);
+        setIsCreating(false);
+      })
+      .finally((response) => {
+        setNewTransactionForm({
+          category: "",
+          description: "",
+          amount: 0,
+        });
+        setIsCreating(false);
+      });
+  }
 
   return (
     <div className="home">
@@ -93,10 +94,18 @@ export default function Home({
         isCreating={isCreating}
         setIsCreating={setIsCreating}
         form={newTransactionForm}
-        setForm={setNewTransacrionForm}
+        setForm={setNewTransactionForm}
         handleOnSubmit={handleOnCreateTransaction}
       />
-      {isLoading ? <h1>Loading...</h1> : findError()}
+      {isLoading ? (
+        <h1>Loading...</h1>
+      ) : (
+        <BankActivity
+          transactions={filteredTransactions}
+          transfers={transfers}
+        />
+      )}
+      {error ? <h2 className="error">{error}</h2> : null}
     </div>
   );
 }
